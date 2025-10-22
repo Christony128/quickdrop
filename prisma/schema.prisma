@@ -16,5 +16,6 @@ model Upload{
   fileType String
   fileSize Int
   createdAt DateTime @default(now())
+  expiresAt DateTime?
   @@map("uploads")
 }

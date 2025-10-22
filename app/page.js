@@ -9,9 +9,23 @@ export default function Home() {
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
   const [uploads, setUploads] = useState([]);
+  const [expiry,setExpiry]=useState('10m')
 
   const { startUpload, isUploading } = useUploadThing("mediaUploader", {
-    onClientUploadComplete: (res) => {
+    onClientUploadComplete:async (res) => {
+      if (res && res[0]) {
+      await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: res[0].name,
+          url: res[0].url,
+          fileType: res[0].type,
+          fileSize: res[0].size,
+          expiry: expiry
+        })
+      });
+    }
       setFile(null);
       setPreview(null);
       setError(null);
@@ -40,7 +54,7 @@ export default function Home() {
 
     try {
       setError(null);
-      await startUpload([file]);
+      await startUpload([file],{expiry: expiry});
     } catch (error) {
       setError(`Upload failed: ${error.message}`);
     }
@@ -91,8 +105,7 @@ return (
               <img 
                 src={preview} 
                 alt="Preview"
-                height={200}
-                width={400}
+                
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
@@ -100,6 +113,16 @@ return (
           </div>
         )}
       </div>
+      {file && 
+      <div className='text-black'>
+        <label>Expiry time</label>
+        <select value={expiry} onChange={e=>{setExpiry(e.target.value)}}>
+          <option value='10m'>10 minutes</option>
+          <option value='1h'>1 hour</option>
+          <option value='1d'>1 day</option>
+        </select>
+      </div>
+      }
       {file && (
         <div className="mt-6 flex justify-center">
           <button 
@@ -107,7 +130,7 @@ return (
             disabled={isUploading}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
           >
-            {isUploading ? "Uploading..." : "Upload File"}
+            {isUploading ? "Uploading" : "Upload File"}
           </button>
         </div>
       )}
@@ -117,7 +140,7 @@ return (
           {uploads.map((u) => (
             <div key={u.id} className="bg-white rounded-lg p-3">
               <a href={`/uploads/${u.id}`} className="block">
-                <div className="w-full h-32 overflow-hidden rounded">
+                <div className="w-full h-full overflow-hidden rounded">
                   <img
                     src={u.url}
                     alt={u.name}
