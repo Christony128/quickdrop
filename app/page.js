@@ -53,10 +53,9 @@ export default function Home() {
     if (!file) return;
 
     try {
-      setError(null);
-      await startUpload([file],{expiry: expiry});
+      await startUpload([file]);
     } catch (error) {
-      setError(`Upload failed: ${error.message}`);
+      console.log(error)
     }
   };
 
@@ -75,10 +74,12 @@ export default function Home() {
   }, []);
 
 return (
-  <div className="min-h-screen bg-gray-50 py-12 px-4">
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-        File Upload
+  
+    <div className="max-w-4xl mx-auto rounded-lg shadow-md p-6">
+      <h1 className="text-4xl font-bold text-red-800 mb-6 text-center">
+        <span className="text-[#A81454]">QUICK<span className="text-[#5A71D6] animate-bounce inline-block">DROP</span>
+</span>
+
       </h1>
       
       {error && (
@@ -135,25 +136,24 @@ return (
         </div>
       )}
       <div className="space-y-4 mt-8">
-        <h2 className="text-xl font-bold">Uploaded Files</h2>
+        <h2 className="text-center text-blue-500 text-xl font-bold">Uploaded Files</h2>
         <div className="grid grid-cols-2 gap-4">
           {uploads.map((u) => (
-            <div key={u.id} className="bg-white rounded-lg p-3">
+            <div key={u.id} className="bg-blue-200 rounded-lg p-3">
               <a href={`/uploads/${u.id}`} className="block">
-                <div className="w-full h-full overflow-hidden rounded">
-                  <img
-                    src={u.url}
-                    alt={u.name}
-                    className="w-full h-full object-cover hover:opacity-80 cursor-pointer"
-                  />
-                </div>
-                <p className="text-xs mt-2 truncate">{u.name}</p>
+                <div className="aspect-square overflow-hidden">
+              <img
+                src={u.url}
+                alt={u.name}
+                className="w-ful h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+                <p className="text-xs mt-2 text-pink-400 truncate">{u.name}</p>
               </a>
             </div>
           ))}
         </div>
       </div>
     </div>
-  </div>
 );
 }
