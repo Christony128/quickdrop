@@ -6,7 +6,6 @@ const utapi = new UTApi()
 
 export async function GET() {
   try {
-    // Find expired uploads first
     const expiredUploads = await prisma.upload.findMany({
       where: {
         expiresAt: {
@@ -14,12 +13,8 @@ export async function GET() {
         }
       }
     })
-    
-    // Delete from UploadThing
     for (const upload of expiredUploads) {
       try {
-        // Extract file key from URL
-        // UploadThing URLs look like: https://utfs.io/f/FILE_KEY
         const fileKey = upload.url.split('/f/')[1]
         if (fileKey) {
           await utapi.deleteFiles([fileKey])
@@ -29,8 +24,6 @@ export async function GET() {
         console.error(`Failed to delete file from UploadThing:`, error)
       }
     }
-    
-    // Delete from database
     await prisma.upload.deleteMany({
       where: {
         expiresAt: {
